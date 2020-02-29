@@ -199,6 +199,41 @@ MXNET_DLL int MXPredSetInput(PredictorHandle handle,
                              const char* key,
                              const mx_float* data,
                              mx_uint size);
+
+/*!
+ * \param data The pointer to the data to be set, which is allocated at gpu.
+ * \param data_dev_id The gpu device id that data is on.
+ */
+MXNET_DLL int MXPredSetInputGPU(PredictorHandle handle,
+                            const char* key,
+                            const mx_float* data,
+                            mx_uint size,
+                            int data_dev_id);
+
+/*!
+ * \param data The pointer to the data to be set. It may be multiple non-contiguous blocks, 
+ *      so the the type is const mx_float**.
+ * \param num_slice The block num of data.
+ * \param slices_size The size of each block.
+ */
+MXNET_DLL int MXPredSetInputCPUBlocks(PredictorHandle handle,
+                            const char* key,
+                            const mx_float** data,
+                            mx_uint size,
+                            const mx_uint num_slice,
+                            const mx_uint* slice_sizes);  
+
+/*!
+ * \param data The pointer to the data to be set, which is allocated at gpu.
+ * \param data_dev_id The gpu device id that data is on.
+ */
+MXNET_DLL int MXPredSetInputGPUBlocks(PredictorHandle handle,
+                            const char* key,
+                            const mx_float** data,
+                            mx_uint size,
+                            const mx_uint num_slice,
+                            const mx_uint* slice_sizes,
+                            int data_dev_id);
 /*!
  * \brief Run a forward pass to get the output.
  * \param handle The handle of the predictor.
@@ -234,6 +269,16 @@ MXNET_DLL int MXPredGetOutput(PredictorHandle handle,
                               mx_uint index,
                               mx_float* data,
                               mx_uint size);
+
+/*!
+ * \param data User allocated data on gpu to hold the output.
+ * \param data_dev_id Where the data is allocated on.
+ */
+MXNET_DLL  int MXPredGetOutputGPU(PredictorHandle handle,
+                                mx_uint index,
+                                mx_float* data,
+                                mx_uint size,
+                                int data_dev_id);                              
 /*!
  * \brief Free a predictor handle.
  * \param handle The handle of the predictor.
