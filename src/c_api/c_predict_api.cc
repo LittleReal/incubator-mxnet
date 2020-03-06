@@ -465,20 +465,28 @@ int MXPredSetInputGPU(PredictorHandle handle,
                     int data_dev_id)
 {
     MXAPIPredictor* p = static_cast<MXAPIPredictor*>(handle);
+
     API_BEGIN();
+
     auto it = p->key2arg.find(key);
     if (it == p->key2arg.end()) {
         LOG(FATAL) << "cannot find input key " << key;
     }
+
     NDArray& nd = p->arg_arrays[it->second];
+
     const TShape shape = nd.shape();
+
     TBlob tblob = TBlob(const_cast<mx_float*>(data), shape, gpu::kDevMask, data_dev_id);
+
     NDArray nd2 = NDArray(tblob, data_dev_id);
+
     nd.SyncCopyFromNDArray(nd2);
+
     API_END();
 }
 
-int MXPredSetInputCPUBlocks(PredictorHandle handle,
+int MXPredSetInputCPU(PredictorHandle handle,
                     const char* key,
                     const mx_float** data,
                     mx_uint size,
@@ -501,15 +509,20 @@ int MXPredSetInputCPUBlocks(PredictorHandle handle,
     if ( err != cudaSuccess){
         return success;
     }
-    int current_position=0;
+
     int dev_id = 0;
+
     err = cudaGetDevice(&dev_id);
     if ( err != cudaSuccess){
         cudaFree(data_input);
         return success;
     }
+
+    int current_position=0;
+
     for (mx_uint i = 0; i < num_slice; i++){
         mx_uint slice_size = slice_sizes[i];
+
         err = cudaMemcpy(
             data_input + current_position, 
             data[i], 
@@ -520,8 +533,10 @@ int MXPredSetInputCPUBlocks(PredictorHandle handle,
             cudaFree(data_input);
             return success;
         }
+
         current_position = current_position + slice_size;
     }
+
     if (current_position != size){
         cudaFree(data_input);
         return success;
@@ -537,7 +552,7 @@ int MXPredSetInputCPUBlocks(PredictorHandle handle,
     return success;
 }
 
-int MXPredSetInputGPUBlocks(PredictorHandle handle,
+int MXPredSetInputGPU(PredictorHandle handle,
                     const char* key,
                     const mx_float** data,
                     mx_uint size,
@@ -568,9 +583,12 @@ int MXPredSetInputGPUBlocks(PredictorHandle handle,
     }
 
     size_t current_position = 0;
+
     for (mx_uint i = 0; i < num_slice; i++){
         const mx_float* data_i = data[i];
+
         const mx_uint slice_size =slice_sizes[i];
+
         err = cudaMemcpy(
             data_input + current_position, 
             data_i,
@@ -581,8 +599,10 @@ int MXPredSetInputGPUBlocks(PredictorHandle handle,
             cudaFree(data_input);
             return success;
         }
+
         current_position = current_position + slice_size;
     }
+
     if (current_position != size){
         cudaFree(data_input);
         return success;
@@ -627,12 +647,6 @@ int MXPredGetOutput(PredictorHandle handle,
   API_END();
 }
 
-int MXPredFree(PredictorHandle handle) {
-  API_BEGIN();
-  delete static_cast<MXAPIPredictor*>(handle);
-  API_END();
-}
-
 int MXPredGetOutputGPU(PredictorHandle handle,
                     mx_uint index,
                     mx_float* data,
@@ -640,15 +654,29 @@ int MXPredGetOutputGPU(PredictorHandle handle,
                     int data_dev_id) 
 {
     MXAPIPredictor* p = static_cast<MXAPIPredictor*>(handle);
+
     API_BEGIN();
+
     CHECK_LT(index, p->out_arrays.size())
         << "Output index out of range";
+
     const NDArray& nd = p->out_arrays[index];
+
     const TShape shape = nd.shape();
+
     TBlob tblob = TBlob(data, shape, gpu::kDevMask, data_dev_id);
+
     NDArray nd2 = NDArray(tblob, data_dev_id);
+
     nd2.SyncCopyFromNDArray(nd);
+
     API_END();
+}
+
+int MXPredFree(PredictorHandle handle) {
+  API_BEGIN();
+  delete static_cast<MXAPIPredictor*>(handle);
+  API_END();
 }
 
 int MXNDListCreate(const char* nd_file_bytes,
