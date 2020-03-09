@@ -458,7 +458,7 @@ int MXPredSetInput(PredictorHandle handle,
   API_END();
 }
 
-int MXPredSetInputGPU(PredictorHandle handle,
+int MXPredSetInputGPUContiguous(PredictorHandle handle,
                     const char* key,
                     const mx_float* data,
                     mx_uint size,
@@ -542,7 +542,7 @@ int MXPredSetInputCPU(PredictorHandle handle,
         return success;
     }
 
-    success = MXPredSetInputGPU(handle, key, data_input, size, dev_id);
+    success = MXPredSetInputGPUContiguous(handle, key, data_input, size, dev_id);
 
     err = cudaFree(data_input);
     if (err != cudaSuccess){
@@ -567,7 +567,7 @@ int MXPredSetInputGPU(PredictorHandle handle,
     }
 
     if (num_slice == 1){
-        success = MXPredSetInputGPU(handle, key, data[0], size, data_dev_id);
+        success = MXPredSetInputGPUContiguous(handle, key, data[0], size, data_dev_id);
         return success;
     }
 
@@ -608,7 +608,7 @@ int MXPredSetInputGPU(PredictorHandle handle,
         return success;
     }
 
-    success = MXPredSetInputGPU(handle, key, data_input, size, data_dev_id);
+    success = MXPredSetInputGPUContiguous(handle, key, data_input, size, data_dev_id);
 
     err = cudaFree(data_input);
     if (err != cudaSuccess){

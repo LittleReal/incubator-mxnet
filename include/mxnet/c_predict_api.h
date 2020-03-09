@@ -204,7 +204,7 @@ MXNET_DLL int MXPredSetInput(PredictorHandle handle,
  * \param data The pointer to the data to be set, which is allocated at gpu.
  * \param data_dev_id The gpu device id that data is on.
  */
-MXNET_DLL int MXPredSetInputGPU(PredictorHandle handle,
+MXNET_DLL int MXPredSetInputGPUContiguous(PredictorHandle handle,
                             const char* key,
                             const mx_float* data,
                             mx_uint size,
